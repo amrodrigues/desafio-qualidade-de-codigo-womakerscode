@@ -1,3 +1,5 @@
+using Ecommerce.Model;
+
 namespace PiorEcommerceDoMundo;
 
 // "integracao" com logistica que na verdade so espera um pouco e devolve um codigo aleatorio
