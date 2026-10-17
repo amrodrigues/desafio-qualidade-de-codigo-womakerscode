@@ -7,7 +7,7 @@ de refatoração, aplicação de SOLID, organização em camadas e boas prática
 ## Como rodar
 
 ```bash
-cd EcommercePiorApi
+cd Ecommerce
 dotnet run
 ```
 
