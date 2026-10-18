@@ -21,14 +21,34 @@ namespace Ecommerce.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListarPedidos() =>
-            Ok(await _db.Pedidos.Include(p => p.Itens).ToListAsync());
+        public async Task<IActionResult> ListarPedidos()
+        {
+            try
+            {
+                var pedidos = await _db.Pedidos.Include(p => p.Itens).ToListAsync();
+                return Ok(pedidos);
+            }
+            catch (Exception ex)
+            {
+                PiorEcommerceDoMundo.Utils.Log($"Erro técnico ao listar pedidos: {ex.Message}");
+                return StatusCode(500, "Não foi possível carregar os pedidos no momento.");
+            }
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> BuscarPedido(int id)
         {
-            var pedido = await _db.Pedidos.Include(p => p.Itens).FirstOrDefaultAsync(p => p.Id == id);
-            return pedido == null ? NotFound() : Ok(pedido);
+            try
+            {
+                var pedido = await _db.Pedidos.Include(p => p.Itens).FirstOrDefaultAsync(p => p.Id == id);
+                return pedido == null ? NotFound() : Ok(pedido);
+            }
+            catch (Exception ex)
+            {
+                PiorEcommerceDoMundo.Utils.Log($"Erro técnico ao buscar pedido {id}: {ex.Message}");
+                return StatusCode(500, "Não foi possível carregar as informações do pedido.");
+            }
+
         }
 
         [HttpPost]
@@ -42,6 +62,11 @@ namespace Ecommerce.Controllers
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                PiorEcommerceDoMundo.Utils.Log($"Erro inesperado ao criar pedido: {ex.Message}");
+                return StatusCode(500, "Ocorreu um erro interno. Tente novamente mais tarde.");
             }
         }
 
@@ -59,7 +84,8 @@ namespace Ecommerce.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                PiorEcommerceDoMundo.Utils.Log($"Erro técnico ao reprocessar pagamento do pedido {pedidoId}: {ex.Message}");
+                return StatusCode(500, "Não foi possível reprocessar o pagamento no momento.");
             }
         }
 
@@ -77,7 +103,8 @@ namespace Ecommerce.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                PiorEcommerceDoMundo.Utils.Log($"Erro técnico ao reenviar logística do pedido {pedidoId}: {ex.Message}");
+                return StatusCode(500, "Não foi possível reenviar para a logística no momento.");
             }
         }
     }
