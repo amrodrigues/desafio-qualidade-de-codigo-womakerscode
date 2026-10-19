@@ -31,7 +31,7 @@ namespace Ecommerce.Controllers
             {
                 Utils.Log($"Erro técnico ao listar estoque: {ex.Message}");
                 return StatusCode(500, "Não foi possível carregar as informações de estoque no momento.");
-        }
+            }
         }
 
         [HttpPost("reabastecer/{produtoId}/{quantidade}")]
@@ -55,4 +55,6 @@ namespace Ecommerce.Controllers
         return StatusCode(500, "Não foi possível concluir a operação de reabastecimento.");
         }
     }
+}
+
 }
