@@ -11,9 +11,13 @@ namespace Ecommerce.Services
     {
         private readonly AppDbContext _db;
 
-        public PedidoService(AppDbContext db)
+        //CORREÇÃO: Injetando a chamada de pagamento
+        private readonly IPagamentoService _pagamentoService;
+
+        public PedidoService(AppDbContext db, IPagamentoService pagamentoService)
         {
             _db = db;
+            _pagamentoService = pagamentoService;
         }
 
         public async Task<Pedido> CriarPedidoAsync(PedidoRequest request)
@@ -78,14 +82,14 @@ namespace Ecommerce.Services
                 _db.Pedidos.Add(pedido);
                 await _db.SaveChangesAsync();
 
-                // Processamento do pagamento
-                bool pagamentoOk = PagamentoMock.ProcessarPagamento(total, request.FormaPagamento);
+                //CORREÇÃO: Chamada usando a interface de pagamento 
+                bool pagamentoOk = await _pagamentoService.ProcessarPagamentoAsync(total, request.FormaPagamento);
                 if (!pagamentoOk)
                 {
                     pedido.Status = StatusPedido.Falhou;
                     await _db.SaveChangesAsync();
-                    await transaction.RollbackAsync(); // Estorna o estoque e cancela as alterações
-                    Utils.Log($"Pagamento falhou para o pedido {pedido.Id}. Estoque estornado.");
+                    await transaction.RollbackAsync();
+                    PiorEcommerceDoMundo.Utils.Log($"Pagamento falhou para o pedido {pedido.Id}. Estoque estornado.");
                     throw new InvalidOperationException("Pagamento recusado.");
                 }
 
@@ -115,14 +119,15 @@ namespace Ecommerce.Services
             var pedido = await _db.Pedidos.Include(p => p.Itens).FirstOrDefaultAsync(p => p.Id == pedidoId);
             if (pedido == null) throw new KeyNotFoundException("Pedido não encontrado.");
 
-            bool ok = PagamentoMock.ProcessarPagamento(pedido.ValorTotal, pedido.FormaPagamento);
+            //CORREÇÂO: Processamento assíncrono
+            bool ok = await _pagamentoService.ProcessarPagamentoAsync(pedido.ValorTotal, pedido.FormaPagamento);
             if (!ok)
             {
                 pedido.Status = StatusPedido.Falhou;
                 await _db.SaveChangesAsync();
                 throw new InvalidOperationException("Pagamento recusado novamente.");
             }
-
+    
             pedido.Status = StatusPedido.Pago;
             await _db.SaveChangesAsync();
             return pedido;
