@@ -20,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=ecommerce.db"));
 
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+//CORREÇÃO: Registra o novo serviço de pagamento no container de injeção de dependência
+builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 var app = builder.Build();
 
