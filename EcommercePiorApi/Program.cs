@@ -22,6 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 //CORREÇÃO: Registra o novo serviço de pagamento no container de injeção de dependência
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
+builder.Services.AddScoped<ICalculadoraDesconto, CalculadoraDesconto>();
 
 var app = builder.Build();
 

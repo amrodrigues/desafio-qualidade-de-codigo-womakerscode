@@ -13,11 +13,16 @@ namespace Ecommerce.Services
 
         //CORREÇÃO: Injetando a chamada de pagamento
         private readonly IPagamentoService _pagamentoService;
+        private readonly ICalculadoraDesconto _calculadoraDesconto;
 
-        public PedidoService(AppDbContext db, IPagamentoService pagamentoService)
+        public PedidoService(
+            AppDbContext db,
+            IPagamentoService pagamentoService,
+            ICalculadoraDesconto calculadoraDesconto)
         {
             _db = db;
             _pagamentoService = pagamentoService;
+            _calculadoraDesconto = calculadoraDesconto;
         }
 
         public async Task<Pedido> CriarPedidoAsync(PedidoRequest request)
@@ -67,17 +72,7 @@ namespace Ecommerce.Services
                     total += produto.Preco * itemReq.Quantidade;
                 }
 
-                // Regras de desconto centralizadas
-                if (total > 500m)
-                {
-                    total *= 0.90m; // 10% de desconto
-                }
-                else if (request.ClienteEmail.Contains("vip", StringComparison.OrdinalIgnoreCase))
-                {
-                    total *= 0.80m; // 20% de desconto para VIPs
-                }
-
-                pedido.ValorTotal = total;
+                pedido.ValorTotal = _calculadoraDesconto.Aplicar(total, request.ClienteEmail);
 
                 _db.Pedidos.Add(pedido);
                 await _db.SaveChangesAsync();
