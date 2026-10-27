@@ -78,7 +78,7 @@ namespace Ecommerce.Services
                 await _db.SaveChangesAsync();
 
                 //CORREÇÃO: Chamada usando a interface de pagamento 
-                bool pagamentoOk = await _pagamentoService.ProcessarPagamentoAsync(total, request.FormaPagamento);
+                bool pagamentoOk = await _pagamentoService.ProcessarPagamentoAsync(pedido.ValorTotal, request.FormaPagamento);
                 if (!pagamentoOk)
                 {
                     pedido.Status = StatusPedido.Falhou;
