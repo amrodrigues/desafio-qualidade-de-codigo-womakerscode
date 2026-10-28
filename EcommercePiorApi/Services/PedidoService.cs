@@ -139,5 +139,18 @@ namespace Ecommerce.Services
             await _db.SaveChangesAsync();
             return pedido;
         }
+
+        public async Task<IEnumerable<Pedido>> ListarPedidosAsync()
+        {
+            return await _db.Pedidos
+                .Include(p => p.Itens)
+                    .ThenInclude(i => i.Produto) // Carrega os dados do Produto
+                .ToListAsync();
+        }
+         
+        public async Task<Pedido?> BuscarPedidoPorIdAsync(int id)
+        {
+            return await _db.Pedidos.Include(p => p.Itens).FirstOrDefaultAsync(p => p.Id == id);
+        }
     }
 }

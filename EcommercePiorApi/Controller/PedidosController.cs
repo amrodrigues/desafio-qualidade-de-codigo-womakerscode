@@ -12,12 +12,10 @@ namespace Ecommerce.Controllers
     public class PedidosController : ControllerBase
     {
         private readonly IPedidoService _pedidoService;
-        private readonly AppDbContext _db;
 
-        public PedidosController(IPedidoService pedidoService, AppDbContext db)
+        public PedidosController(IPedidoService pedidoService)
         {
             _pedidoService = pedidoService;
-            _db = db;
         }
 
         [HttpGet]
@@ -25,7 +23,7 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                var pedidos = await _db.Pedidos.Include(p => p.Itens).ToListAsync();
+                var pedidos = await _pedidoService.ListarPedidosAsync();
                 return Ok(pedidos);
             }
             catch (Exception ex)
@@ -40,7 +38,7 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                var pedido = await _db.Pedidos.Include(p => p.Itens).FirstOrDefaultAsync(p => p.Id == id);
+                var pedido = await _pedidoService.BuscarPedidoPorIdAsync(id);
                 return pedido == null ? NotFound() : Ok(pedido);
             }
             catch (Exception ex)
@@ -48,7 +46,6 @@ namespace Ecommerce.Controllers
                 PiorEcommerceDoMundo.Utils.Log($"Erro técnico ao buscar pedido {id}: {ex.Message}");
                 return StatusCode(500, "Não foi possível carregar as informações do pedido.");
             }
-
         }
 
         [HttpPost]
