@@ -8,5 +8,8 @@ namespace Ecommerce.Services
         Task<Pedido> CriarPedidoAsync(PedidoRequest request);
         Task<Pedido> ReprocessarPagamentoAsync(int pedidoId);
         Task<Pedido> ReenviarLogisticaAsync(int pedidoId);
+
+        Task<IEnumerable<Pedido>> ListarPedidosAsync();
+        Task<Pedido?> BuscarPedidoPorIdAsync(int id);
     }
 }
