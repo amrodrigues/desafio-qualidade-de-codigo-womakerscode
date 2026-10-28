@@ -25,6 +25,13 @@ builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 builder.Services.AddScoped<ICalculadoraDesconto, CalculadoraDesconto>();
 builder.Services.AddScoped<IEstoqueService, EstoqueService>();
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Ignora propriedades que tiverem valor null no JSON de saída
+        options.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 var app = builder.Build();
 
